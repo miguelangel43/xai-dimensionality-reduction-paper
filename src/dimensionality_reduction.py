@@ -8,7 +8,7 @@ import os
 import pickle
 from math import sqrt, floor
 import pandas as pd
-from pickle import dump
+import pickle
 
 
 def apply_slmvp(X_train, X_test, y_train, n, type_kernel, gammas=None, poly_order=None, multilabel=None):
@@ -28,8 +28,8 @@ def apply_slmvp(X_train, X_test, y_train, n, type_kernel, gammas=None, poly_orde
     return data_train, data_test, BAux
 
 
-def apply_lpp(X_train, X_test, n, k):
-    lpp = LPP(n_components=n, n_neighbors=k)
+def apply_lpp(X_train, X_test, n):
+    lpp = LPP(n_components=n)
     lpp.fit(X_train)
     X_lpp_train = lpp.transform(X_train)
     X_lpp_test = lpp.transform(X_test)
@@ -72,7 +72,9 @@ def apply_lol(X_train, X_test, y_train, n_components):
     return X_lol_train.T, X_lol_test.T
 
 
-def apply_all_dimensionality_reduction(X_train, X_test, y_train, models_list=['SLMVP', 'PCA', 'KPCA', 'LOL', 'LPP', 'LLE'],
+def apply_all_dimensionality_reduction(X_train, X_test, y_train, dataset_name,
+                                       models_list=['SLMVP', 'PCA',
+                                                    'KPCA', 'LOL', 'LPP', 'LLE'],
                                        n_components_list=[1, 2, 5, 10], multilabel=None):
     """Apply dimensionality reduction techniques and save transformed features.
 
@@ -80,6 +82,7 @@ def apply_all_dimensionality_reduction(X_train, X_test, y_train, models_list=['S
         X_train (array-like): Training data features.
         X_test (array-like): Testing data features.
         y_train (array-like): Training data labels.
+        dataset_name (str): Name of the dataset.
         models_list (list, optional): List of dimensionality reduction techniques to be applied. Default is ['SLMVP', 'PCA', 'KPCA', 'LOL', 'LPP', 'LLE'].
         n_components_list (list, optional): List of numbers of components to be obtained with the dimensionality reduction techniques. Default is [1, 2, 5, 10].
         multilabel (bool, optional): Specifies whether the dataset is multilabel.
@@ -128,11 +131,9 @@ def apply_all_dimensionality_reduction(X_train, X_test, y_train, models_list=['S
                     X_train, X_test, y_train, n_components=n_components+1)
 
         if 'LPP' in models_list:
-            k = floor(
-                sqrt(min(len(X_train), len(X_train[0]))))
-            key = (str(n_components) + 'Dim', 'LPP', 'k=' + str(k))
+            key = (str(n_components) + 'Dim', 'LPP', '')
             pbar.set_description(str(key))
-            reduced_data[key] = apply_lpp(X_train, X_test, n_components, k)
+            reduced_data[key] = apply_lpp(X_train, X_test, n_components)
 
         if 'LLE' in models_list:
             k = floor(sqrt(len(X_train)))
@@ -145,6 +146,10 @@ def apply_all_dimensionality_reduction(X_train, X_test, y_train, models_list=['S
 
     # Save as pickle
     save_path = os.path.dirname(os.path.dirname(os.path.abspath(
-        __file__))) + '/data/reduced_data/census_income/data.pkl'
-    dump(reduced_data, open(save_path, 'wb'))
+        __file__))) + f'/data/{dataset_name}/reduced/reduced_X.pkl'
+
+    pickle.dump(reduced_data, open(save_path, 'wb'))
+
     print('Saved reduced data at path:', save_path)
+
+    return reduced_data

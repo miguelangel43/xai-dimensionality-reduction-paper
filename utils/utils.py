@@ -15,7 +15,7 @@ def get_weights(reduced_X, n_components=5):
         pd.DataFrame: DataFrame containing variations of the data projected onto the discovered dimensions.
     """
     res = pd.DataFrame()
-    for key in reduced_X.keys():
+    for key in reduced_X:
         # Calculate variations
         var_dims = [np.var(reduced_X[key][0][i])
                     for i in range(len(reduced_X[key][0]))]
@@ -31,7 +31,7 @@ def get_weights(reduced_X, n_components=5):
     return res.droplevel(3, axis=1)
 
 
-def get_corr_table(reduced_X, X_train, col_names, abs=True, weighted=False, weights=None):
+def get_corr_table(reduced_X, X_train, col_names=None, abs=True, weighted=False, weights=None):
     """
     Compute correlations between original data and each principal component.
 

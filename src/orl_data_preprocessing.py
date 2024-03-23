@@ -64,6 +64,16 @@ if __name__ == "__main__":
     # Split data
     X_train, X_test, y_train, y_test = split_data(data)
 
+    # Save split data
+    pickle.dump(X_train, open(os.getcwd() +
+                              '/data/orl/split/X_train.pkl', 'wb'))
+    pickle.dump(X_test, open(os.getcwd() +
+                             '/data/orl/split/X_test.pkl', 'wb'))
+    pickle.dump(y_train, open(os.getcwd() +
+                              '/data/orl/split/y_train.pkl', 'wb'))
+    pickle.dump(y_test, open(os.getcwd() +
+                             '/data/orl/split/y_test.pkl', 'wb'))
+
     # Preprocess data
     X_train = preprocess_data(X_train)
     X_test = preprocess_data(X_test)

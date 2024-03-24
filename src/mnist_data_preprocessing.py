@@ -76,6 +76,35 @@ class MnistDataloader(object):
         return (x_train, y_train), (x_test, y_test)
 
 
+def sample_data(X_train, y_train, X_test, y_test, n_samples):
+    """
+    Randomly sample data from the dataset.
+
+    Args:
+        X_train (array-like): Training data.
+        y_train (array-like): Training labels.
+        X_test (array-like): Testing data.
+        y_test (array-like): Testing labels.
+        n_samples (tuple): Number of samples to select for training and testing data.
+
+    Returns:
+        tuple: Tuple containing sampled training and testing data.
+    """
+    # Randomly select 600 instances for training data
+    train_indices = np.random.choice(
+        len(X_train), size=n_samples[0], replace=False)
+    X_train = np.array(X_train)[train_indices]
+    y_train = np.array(y_train)[train_indices]
+
+    # Randomly select 100 instances for testing data
+    test_indices = np.random.choice(
+        len(X_test), size=n_samples[1], replace=False)
+    X_test = np.array(X_test)[test_indices]
+    y_test = np.array(y_test)[test_indices]
+
+    return X_train, y_train, X_test, y_test
+
+
 def show_images(images, title_texts):
     """
     Helper function to display images.
@@ -113,18 +142,43 @@ if __name__ == "__main__":
     # Load and split data
     (X_train, y_train), (X_test, y_test) = mnist_dataloader.load_data()
 
-    # Normalize the pixel values to be between 0 and 1
-    x_train = np.array(X_train) / 255.0
-    x_test = np.array(X_train) / 255.0
+    # Sample data
+    X_train, y_train, X_test, y_test = sample_data(
+        X_train, y_train, X_test, y_test, n_samples=(600, 100))
 
-    # Save preprocessed data
+    # Save split data
     pickle.dump(X_train, open(os.getcwd() +
-                              '/data/mnist/processed/X_train.pkl', 'wb'))
+                              '/data/mnist/split/X_train.pkl', 'wb'))
     pickle.dump(X_test, open(os.getcwd() +
-                             '/data/mnist/processed/X_test.pkl', 'wb'))
+                             '/data/mnist/split/X_test.pkl', 'wb'))
     pickle.dump(y_train, open(os.getcwd() +
-                              '/data/mnist/processed/y_train.pkl', 'wb'))
+                              '/data/mnist/split/y_train.pkl', 'wb'))
     pickle.dump(y_test, open(os.getcwd() +
+                             '/data/mnist/split/y_test.pkl', 'wb'))
+
+    # Normalize the pixel values to be between 0 and 1
+    X_train = np.array(X_train) / 255.0
+    X_test = np.array(X_test) / 255.0
+
+    # Subtract the mean from the data
+    mean = np.mean(X_train, axis=0)
+    X_train = X_train - mean
+    X_test = X_test - mean
+
+    # Flatten the images
+    X_train = np.array(X_train).reshape((len(X_train), -1))
+    X_test = np.array(X_test).reshape((len(X_test), -1))
+
+    os.path.dirname(os.path.dirname(os.path.abspath(
+                    __file__)))
+    # Save preprocessed data
+    pickle.dump(X_train, open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +
+                              '/data/mnist/processed/X_train.pkl', 'wb'))
+    pickle.dump(X_test, open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +
+                             '/data/mnist/processed/X_test.pkl', 'wb'))
+    pickle.dump(y_train, open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +
+                              '/data/mnist/processed/y_train.pkl', 'wb'))
+    pickle.dump(y_test, open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +
                              '/data/mnist/processed/y_test.pkl', 'wb'))
 
     print('Data saved in folder: ', '/data/mnist/processed/')

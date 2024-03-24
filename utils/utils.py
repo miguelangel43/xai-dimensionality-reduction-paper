@@ -60,7 +60,7 @@ def get_corr_table(reduced_X, X_train, col_names=None, abs=True, weighted=False,
             df[key+(i,)] = reduced_X[key][0][i]
 
     # Correlations between the original data and each principal component
-    df_corrs = df.corr().iloc[:len(X_train[0]), len(X_train[0]):]
+    df_corrs = df.corr().iloc[:len(X_train[0]), len(X_train[0]):].fillna(0)
 
     # Make df multi-index
     df_corrs.columns = pd.MultiIndex.from_tuples(

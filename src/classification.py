@@ -183,13 +183,13 @@ def apply_classifiers_reduced_data(reduced_X, y_train, y_test, dataset_name, cla
     scores_df = scores_df.sort_values('Score', ascending=False)
 
     # Save scores as CSV
-    scores_df.to_csv(os.path.dirname(os.path.dirname(
-        os.path.abspath(__file__)) + f'/results/scores/{dataset_name}_scores.csv'))
+    scores_df.to_csv(os.path.dirname(os.path.dirname(os.path.abspath(
+        __file__))) + f'/results/scores/{dataset_name}_scores.csv')
     print(f'Scores saved at: /results/scores/{dataset_name}_scores.csv')
 
     # Filter for the best configuration
     best_config = scores_df.fillna('').loc[scores_df.sort_values(
-        'Dimensions').groupby('Dim. Technique')['Score'].idxmax()]
+        'Score', ascending=False).groupby('Dim. Technique')['Score'].idxmax()]
     best_config = [tuple(row) for row in best_config[['Dimensions',
                                                       'Dim. Technique', 'Dim. Params']].to_records(index=False)]
     reduced_X_best = {k: reduced_X[k] for k in best_config}

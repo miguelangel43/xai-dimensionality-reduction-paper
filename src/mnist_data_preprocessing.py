@@ -142,9 +142,9 @@ if __name__ == "__main__":
     # Load and split data
     (X_train, y_train), (X_test, y_test) = mnist_dataloader.load_data()
 
-    # Sample data
-    X_train, y_train, X_test, y_test = sample_data(
-        X_train, y_train, X_test, y_test, n_samples=(600, 100))
+    # # Sample data
+    # X_train, y_train, X_test, y_test = sample_data(
+    #     X_train, y_train, X_test, y_test, n_samples=(600, 100))
 
     # Save split data
     pickle.dump(X_train, open(os.getcwd() +

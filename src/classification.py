@@ -25,7 +25,7 @@ def train_xgb(X_train, y_train):
     gs_xgb = GridSearchCV(xgb_classifier,
                           param_grid=params,
                           scoring='accuracy',
-                          cv=4)
+                          cv=3)
     gs_xgb.fit(X_train, y_train)
 
     return gs_xgb
@@ -34,12 +34,12 @@ def train_xgb(X_train, y_train):
 def train_svc(X_train, y_train):
     # Initialize SVC classifier
     svc_classifier = SVC(random_state=42)
-    params = [{'C': [0.1, 1, 10, 100, 1000], 'gamma': [
-        1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['rbf']}]
+    params = [{'C': [0.001, 0.0001, 0.00001], 'gamma': [
+        0.001, 0.00001, 0.0000001], 'kernel': ['rbf']}]
     gs_svc = GridSearchCV(svc_classifier,
                           param_grid=params,
                           scoring='accuracy',
-                          cv=2)
+                          cv=3)
     gs_svc.fit(X_train, y_train)
 
     return gs_svc

@@ -35,7 +35,7 @@ def preprocess_data(data):
 
 def split_data(data):
     """Split the data into train and test sets."""
-    train_size = 0.6  # Split Data with random sampling
+    train_size = 0.9  # Split Data with random sampling
 
     train_idx = np.random.choice(10, int(train_size*10), replace=False)
 
@@ -50,8 +50,8 @@ def split_data(data):
 
     X_train = np.array(X_train)
     X_test = np.array(X_test)
-    y_train = np.array([i for i in range(40) for j in range(6)])
-    y_test = np.array([i for i in range(40) for j in range(4)])
+    y_train = np.array([i for i in range(40) for j in range(9)])
+    y_test = np.array([i for i in range(40) for j in range(1)])
 
     return X_train, X_test, y_train, y_test
 

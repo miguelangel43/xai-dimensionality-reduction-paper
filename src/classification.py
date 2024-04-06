@@ -78,8 +78,9 @@ def apply_classifiers_original_features(X_train, y_train, X_test, y_test, datase
                     __file__))) + f'/models/classifiers/on_orig_features/{dataset_name}/xgboost.pkl', 'wb'))
         # Predict using trained classifier
         y_pred = clf.predict(X_test)
-        # Calculate Accuracy score
+        # Calculate Accuracy score on test and train data
         score = accuracy_score(y_test, y_pred)
+        score_train = accuracy_score(y_train, clf.predict(X_train))
 
     if 'SVC' in classifiers:  # Train SVC classifier
         clf = train_svc(X_train, y_train)
@@ -91,12 +92,13 @@ def apply_classifiers_original_features(X_train, y_train, X_test, y_test, datase
         # Predict using trained classifier
         y_pred = clf.predict(X_test)
 
-        # Calculate Accuracy score
+        # Calculate Accuracy score on test and train data
         score = accuracy_score(y_test, y_pred)
+        score_train = accuracy_score(y_train, clf.predict(X_train))
 
     if 'SGD' in classifiers:  # Train SGD classifier
         clf = train_sgd(X_train, y_train)
-        # Save trained classifier to a file
+        # Save trained classifier
         if save_flag:
             pickle.dump(
                 clf, open(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -104,10 +106,11 @@ def apply_classifiers_original_features(X_train, y_train, X_test, y_test, datase
         # Predict using trained classifier
         y_pred = clf.predict(X_test)
 
-        # Calculate Accuracy score
+        # Calculate Accuracy score on test and train data
         score = accuracy_score(y_test, y_pred)
+        score_train = accuracy_score(y_train, clf.predict(X_train))
 
-    return score
+    return score, score_train
 
 
 def apply_classifiers_reduced_data(reduced_X, y_train, y_test, dataset_name, classifiers=['XGBOOST'], save_flag=True):
@@ -140,9 +143,11 @@ def apply_classifiers_reduced_data(reduced_X, y_train, y_test, dataset_name, cla
                         __file__))) + f'/models/classifiers/on_reduced_data/{dataset_name}/xgboost.pkl', 'wb'))
             y_pred = clf.predict(reduced_X[key_dim][1].T)
             score = accuracy_score(y_test, y_pred)
+            score_train = accuracy_score(y_train, clf.predict(
+                reduced_X[key_dim][0].T))
             # Store model name, score, and best parameters
             scores[('XGBoost', *key_dim)] = ['XGBoost',
-                                             score, clf.best_params_]
+                                             score, score_train, clf.best_params_]
 
     if 'SVC' in classifiers:
 
@@ -156,8 +161,11 @@ def apply_classifiers_reduced_data(reduced_X, y_train, y_test, dataset_name, cla
                         __file__))) + f'/models/classifiers/on_reduced_data/{dataset_name}/svc.pkl', 'wb'))
             y_pred = clf.predict(reduced_X[key_dim][1].T)
             score = accuracy_score(y_test, y_pred)
+            score_train = accuracy_score(y_train, clf.predict(
+                reduced_X[key_dim][0].T))
             # Store model name, score, and best parameters
-            scores[('SVC', *key_dim)] = ['SVC', score, clf.best_params_]
+            scores[('SVC', *key_dim)] = ['SVC', score,
+                                         score_train, clf.best_params_]
 
     if 'SGD' in classifiers:
 
@@ -171,12 +179,15 @@ def apply_classifiers_reduced_data(reduced_X, y_train, y_test, dataset_name, cla
                         __file__))) + f'/models/classifiers/on_reduced_data/{dataset_name}/sgd.pkl', 'wb'))
             y_pred = clf.predict(reduced_X[key_dim][1].T)
             score = accuracy_score(y_test, y_pred)
+            score_train = accuracy_score(y_train, clf.predict(
+                reduced_X[key_dim][0].T))
             # Store model name, score, and best parameters
-            scores[('SGD', *key_dim)] = ['SGD', score, clf.get_params()]
+            scores[('SGD', *key_dim)] = ['SGD', score,
+                                         score_train, clf.get_params()]
 
     # Format scores in a Pandas df
     scores_df = pd.DataFrame.from_dict(scores, orient='index', columns=[
-        'Model', 'Score', 'Params']).reset_index()
+        'Model', 'Score', 'Score Train', 'Params']).reset_index()
     scores_df[['Model', 'Dimensions', 'Dim. Technique', 'Dim. Params']] = pd.DataFrame(
         scores_df['index'].tolist(), index=scores_df.index)
     scores_df = scores_df.drop('index', axis=1)

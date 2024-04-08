@@ -7,6 +7,7 @@ import os
 import pickle
 import pandas as pd
 from sklearn.linear_model import SGDClassifier
+import random
 
 
 def train_xgb(X_train, y_train):
@@ -213,3 +214,61 @@ def apply_classifiers_reduced_data(reduced_X, y_train, y_test, dataset_name, cla
         f'Reduced data saved at: /data/{dataset_name}/reduced/reduced_X_best.pkl')
 
     return scores_df, reduced_X_best
+
+
+def apply_classifiers_with_random_features(X_train, X_test, y_train, y_test, num_iterations, num_dims, size, dataset_name):
+    """
+    Apply classifiers using random feature selection and save the results in a DataFrame.
+
+    Args:
+        num_dims (list): List of integers representing the number of dimensions to consider.
+        size (int): Total number of features in the dataset.
+        dataset_name (str): Name of the dataset being used.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing the results, including the number of dimensions and classifier scores.
+
+    """
+
+    # Create list of features indices
+    indices = list(range(size))
+
+    # Initialize DataFrame to store results
+    scores_df = pd.DataFrame(
+        columns=['Num_dims', 'Score SGD', 'Score SGD Train', 'Score SVC', 'Score SVC Train'])
+
+    for i in range(num_iterations):
+        print('Iteration:', i+1)
+        # Iterate over different numbers of dimensions
+        for num in tqdm(num_dims):
+            # Apply classifiers with random features
+            random.shuffle(indices)
+            selected_indices = indices[:num]
+
+            # Apply SGD classifier and retrieve scores
+            score_sgd, score_sgd_train = apply_classifiers_original_features(
+                X_train[:, selected_indices], y_train, X_test[:, selected_indices], y_test, None, classifiers=['SGD'], save_flag=False)
+
+            # Apply SVC classifier and retrieve scores
+            score_svc, score_svc_train = apply_classifiers_original_features(
+                X_train[:, selected_indices], y_train, X_test[:, selected_indices], y_test, None, classifiers=['SVC'], save_flag=False)
+
+            # Append results to DataFrame
+            scores_df = scores_df.append({
+                'Num_dims': num,
+                'Score SGD': score_sgd,
+                'Score SGD Train': score_sgd_train,
+                'Score SVC': score_svc,
+                'Score SVC Train': score_svc_train,
+            }, ignore_index=True)
+
+    # Calculate mean scores
+    scores_df = scores_df.groupby('Num_dims').mean().reset_index()
+
+    # Save results as CSV
+    scores_df.to_csv(os.path.dirname(os.getcwd(
+    )) + '/results/feature_selection/' + dataset_name + '_scores_random.csv', index=False)
+    print('Saved results to /results/feature_selection/' +
+          dataset_name + '_scores_random.csv')
+
+    return scores_df

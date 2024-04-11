@@ -235,7 +235,7 @@ def apply_classifiers_with_random_features(X_train, X_test, y_train, y_test, num
 
     # Initialize DataFrame to store results
     scores_df = pd.DataFrame(
-        columns=['Num_dims', 'Score SGD', 'Score SGD Train', 'Score SVC', 'Score SVC Train'])
+        columns=['Num Dimensions', 'Score SGD', 'Score SGD Train', 'Score SVC', 'Score SVC Train'])
 
     for i in range(num_iterations):
         print('Iteration:', i+1)
@@ -255,15 +255,15 @@ def apply_classifiers_with_random_features(X_train, X_test, y_train, y_test, num
 
             # Append results to DataFrame
             scores_df = scores_df.append({
-                'Num_dims': num,
-                'Score SGD': score_sgd,
-                'Score SGD Train': score_sgd_train,
-                'Score SVC': score_svc,
-                'Score SVC Train': score_svc_train,
+                'Num Dimensions': num,
+                'SGD Score': score_sgd,
+                'SGD Score Train': score_sgd_train,
+                'SVC Score': score_svc,
+                'SVC Score Train': score_svc_train,
             }, ignore_index=True)
 
     # Calculate mean scores
-    scores_df = scores_df.groupby('Num_dims').mean().reset_index()
+    scores_df = scores_df.groupby('Num Dimensions').mean().reset_index()
 
     # Save results as CSV
     scores_df.to_csv(os.path.dirname(os.getcwd(

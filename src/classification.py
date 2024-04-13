@@ -32,18 +32,28 @@ def train_xgb(X_train, y_train):
     return gs_xgb
 
 
+# def train_svc(X_train, y_train):
+#     # Initialize SVC classifier
+#     svc_classifier = SVC(random_state=42)
+#     params = [{'C': [1], 'gamma': [
+#         0.1, 0.01, 1], 'kernel': ['rbf']}]
+#     gs_svc = GridSearchCV(svc_classifier,
+#                           param_grid=params,
+#                           scoring='accuracy',
+#                           cv=3)
+#     gs_svc.fit(X_train, y_train)
+
+#     return gs_svc
+
 def train_svc(X_train, y_train):
     # Initialize SVC classifier
     svc_classifier = SVC(random_state=42)
-    params = [{'C': [0.001, 0.0001, 0.00001], 'gamma': [
-        0.001, 0.00001, 0.0000001], 'kernel': ['rbf']}]
-    gs_svc = GridSearchCV(svc_classifier,
-                          param_grid=params,
-                          scoring='accuracy',
-                          cv=3)
-    gs_svc.fit(X_train, y_train)
 
-    return gs_svc
+    # Train the SVC classifier
+    svc_classifier.fit(X_train, y_train)
+
+    # Return the trained classifier
+    return svc_classifier
 
 
 def train_sgd(X_train, y_train):

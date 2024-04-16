@@ -5,7 +5,7 @@ xgboost
 matplotlib
 tqdm
 datetime
-pandas
+pandas==1.2.4
 numpy
 imblearn
 Pillow

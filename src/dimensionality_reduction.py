@@ -126,17 +126,30 @@ def apply_all_dimensionality_reduction(X_train, X_test, y_train, dataset_name,
     for n_components in pbar:
 
         if 'SLMVP' in models_list:
+
             # Execution with gammas=0.01
-            key = (str(n_components) + 'Dim', 'SLMVP', 'Radial-Gammas=0.01')
+            key = (str(n_components) + 'Dim', 'SLMVP', 'Linear')
             pbar.set_description(str(key))
             reduced_data[key] = apply_slmvp(
-                X_train, X_test, y_train, n_components, 'radial', dataset_name=dataset_name, gammas=0.01, multilabel=multilabel)
+                X_train, X_test, y_train, n_components, 'linear', dataset_name=dataset_name, multilabel=multilabel)
+
+            # Execution with gammas=0.01
+            key = (str(n_components) + 'Dim', 'SLMVP', 'Poly-Order=2')
+            pbar.set_description(str(key))
+            reduced_data[key] = apply_slmvp(
+                X_train, X_test, y_train, n_components, 'polynomial', dataset_name=dataset_name, poly_order=2, multilabel=multilabel)
 
             # Execution with gammas=0.1
             key = (str(n_components) + 'Dim', 'SLMVP', 'Radial-Gammas=0.1')
             pbar.set_description(str(key))
             reduced_data[key] = apply_slmvp(X_train, X_test, y_train,
                                             n_components, 'radial', dataset_name=dataset_name, gammas=0.1, multilabel=multilabel)
+
+            # Execution with gammas=0.01
+            key = (str(n_components) + 'Dim', 'SLMVP', 'Radial-Gammas=0.01')
+            pbar.set_description(str(key))
+            reduced_data[key] = apply_slmvp(X_train, X_test, y_train,
+                                            n_components, 'radial', dataset_name=dataset_name, gammas=0.01, multilabel=multilabel)
 
         if 'PCA' in models_list:
             key = (str(n_components) + 'Dim', 'PCA', '')

@@ -245,7 +245,7 @@ def apply_classifiers_with_random_features(X_train, X_test, y_train, y_test, num
 
     # Initialize DataFrame to store results
     scores_df = pd.DataFrame(
-        columns=['Num Dimensions', 'Score SGD', 'Score SGD Train', 'Score SVC', 'Score SVC Train'])
+        columns=['Num Dimensions', 'SGD Score', 'SGD Score Train', 'SVC Score', 'SVC Score Train'])
 
     for i in range(num_iterations):
         print('Iteration:', i+1)
@@ -282,3 +282,64 @@ def apply_classifiers_with_random_features(X_train, X_test, y_train, y_test, num
           dataset_name + '_scores_random.csv')
 
     return scores_df
+
+
+def feature_selection_classification(X_train, y_train, X_test, y_test, dataset_name, num_dimensions, df_corrs_avg, most_correlated_pixels):
+    """
+    Perform feature selection for classification using different techniques and classifiers.
+
+    Parameters:
+        X_train (numpy.ndarray): Training feature matrix.
+        y_train (numpy.ndarray): Training labels.
+        X_test (numpy.ndarray): Testing feature matrix.
+        y_test (numpy.ndarray): Testing labels.
+        dataset_name (str): Name of the dataset.
+        num_dimensions (list): List of integers specifying different dimensions to explore.
+        df_corrs_avg (pandas.DataFrame): DataFrame containing average correlations between features.
+        most_correlated_pixels (dict): Dictionary containing most correlated pixels for each dimension technique.
+
+    Returns:
+        None
+    """
+    scores = dict()  # Dictionary to store scores of different classifiers
+
+    pbar = tqdm(num_dimensions)
+    for num_dim in pbar:
+        for dim_technique in df_corrs_avg.keys()[1:]:
+            pbar.set_description(f'{dim_technique} {num_dim} Dimensions')
+
+            # Classify with SGD
+            score_sgd, score_sgd_train = apply_classifiers_original_features(
+                X_train[:, most_correlated_pixels[dim_technique][:num_dim]],
+                y_train,
+                X_test[:, most_correlated_pixels[dim_technique][:num_dim]],
+                y_test,
+                dataset_name,
+                classifiers=['SGD'])
+
+            # Classify with SVC
+            score_svc, score_svc_train = apply_classifiers_original_features(
+                X_train[:, most_correlated_pixels[dim_technique][:num_dim]],
+                y_train,
+                X_test[:, most_correlated_pixels[dim_technique][:num_dim]],
+                y_test,
+                dataset_name,
+                classifiers=['SVC'])
+            res_svc = 0
+
+            scores[(dim_technique, num_dim)] = [score_sgd,
+                                                score_sgd_train, score_svc, score_svc_train]
+
+    scores_df = pd.DataFrame.from_dict(scores, orient='index', columns=[
+        'SGD Score', 'SGD Score Train', 'SVC Score', 'SVC Score Train']).reset_index()
+    scores_df[['Dim Technique', 'Num Dimensions']
+              ] = scores_df['index'].apply(pd.Series)
+
+    scores_df = scores_df[['Dim Technique', 'Num Dimensions',
+                           'SGD Score', 'SGD Score Train', 'SVC Score', 'SVC Score Train']]
+
+    # Save results as CSV
+    scores_df.to_csv(os.path.dirname(os.getcwd(
+    )) + '/results/feature_selection/' + dataset_name + '_scores.csv', index=False)
+    print('Saved results to /results/feature_selection/' +
+          dataset_name + '_scores.csv')
